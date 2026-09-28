@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= titulo %> - Recetario
+  </title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <% const filtrosActuales = (typeof filtros !== 'undefined' && filtros) ? filtros : { section: '', name: '' }; %>
+  <header>
+    <div class="header-content">
+      <a href="/recetas" class="brand">
+        <span>Recetario app</span>
+      </a>
+
+      <a href="/recetas/crear" class="btn-primary">
+        <span>+</span> Nueva receta
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-intro">
+      <div>
+        <span class="page-badge">Catálogo</span>
+        <h1 class="page-title">
+          <%= titulo %>
+        </h1>
+      </div>
+      <div class="recipe-count">
+        <%= recetas.length %>
+          <%= recetas.length===1 ? 'receta encontrada' : 'recetas encontradas' %>
+      </div>
+    </div>
+
+    <form method="GET" action="/recetas" class="filters-bar">
+      <div class="filter-group">
+        <label for="section">Sección</label>
+        <select id="section" name="section">
+          <option value="">Todas</option>
+          <option value="postres" <%= filtrosActuales.section === 'postres' ? 'selected' : '' %>>Postres</option>
+          <option value="veganas" <%= filtrosActuales.section === 'veganas' ? 'selected' : '' %>>Veganas</option>
+          <option value="rapidas" <%= filtrosActuales.section === 'rapidas' ? 'selected' : '' %>>Rápidas</option>
+          <option value="saludables" <%= filtrosActuales.section === 'saludables' ? 'selected' : '' %>>Saludables</option>
+          <option value="internacionales" <%= filtrosActuales.section === 'internacionales' ? 'selected' : '' %>>Internacionales</option>
+        </select>
+      </div>
+
+      <div class="filter-group filter-group-wide">
+        <label for="name">Nombre de la receta</label>
+        <input id="name" type="text" name="name" value="<%= filtrosActuales.name || '' %>" placeholder="Buscar por nombre...">
+      </div>
+
+      <button type="submit" class="btn-primary">Filtrar</button>
+    </form>
+
+    <div class="recetas-grid">
+      <% if (recetas.length===0) { %>
+        <div class="empty-state">
+          <!--div class="empty-icon"></div-->
+          <h3>No hay recetas disponibles</h3>
+          <p>Actualmente no hay ninguna receta en esta sección. ¡Puedes ser el primero en agregar una!</p>
+          <a href="/recetas/crear" class="btn-primary">+ Agregar Receta</a>
+        </div>
+        <% } else { %>
+          <% recetas.forEach(receta=> { %>
+            <div class="receta-card">
+              <div class="card-media">
+                <img src="<%= receta.img || 'https://picsum.photos/400/225' %>" alt="<%= receta.name %>" loading="lazy"
+                  onerror="this.src='https://picsum.photos/400/225'">
+                <% if (receta.section) { %>
+                  <span class="card-section-badge">
+                    <%= receta.section %>
+                  </span>
+                  <% } %>
+              </div>
+
+              <div class="card-content">
+                <h3 class="card-title">
+                  <%= receta.name %>
+                </h3>
+                <p class="card-description">
+                  <%= receta.description %>
+                </p>
+
+                <% const items=(Array.isArray(receta.ingredients) && receta.ingredients.length) ? receta.ingredients :
+                  (Array.isArray(receta.technologies) ? receta.technologies : []); %>
+                  <% if (items.length> 0) { %>
+                    <div class="ingredients-container">
+                      <div class="ingredients-title">Ingredientes:</div>
+                      <div class="ingredients-pills">
+                        <% items.forEach(item=> { %>
+                          <span class="ingredient-pill">
+                            <%= item %>
+                          </span>
+                          <% }) %>
+                      </div>
+                    </div>
+                    <% } %>
+
+                      <div class="card-actions">
+                        <a href="<%= receta.link || '#' %>" target="_blank" rel="noopener noreferrer" class="btn-link">
+                          Ver receta ↗
+                        </a>
+
+                        <div class="action-buttons">
+                          <a href="/recetas/editar/<%= receta._id %>" class="btn-icon edit" title="Editar receta">
+                            editar
+                          </a>
+                          <form action="/recetas/eliminar/<%= receta._id %>" method="POST"
+                            onsubmit="return confirm('¿Estás seguro de que deseas eliminar la receta &quot;<%= receta.name %>&quot;?');"
+                            style="display: inline;">
+                            <button type="submit" class="btn-icon delete" title="Eliminar receta">
+                              borrar
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+              </div>
+            </div>
+            <% }) %>
+              <% } %>
+    </div>
+  </main>
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= titulo %> - Recetario
+  </title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/recetas" class="brand">
+        <div class="brand-icon">🍳</div>
+        <span>Recetario App</span>
+      </a>
+      <a href="/recetas" class="btn-secondary">← Volver al Listado</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>
+          <%= titulo %>
+        </h2>
+        <p>
+          <%= subtitulo %>
+        </p>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert alert-danger">
+          <span>⚠️</span>
+          <span>
+            <%= error %>
+          </span>
+        </div>
+        <% } %>
+
+          <form action="<%= accion %>" method="POST">
+            <div class="form-group">
+              <label for="name">Nombre / Título <span class="required">*</span></label>
+              <input type="text" id="name" name="name" class="form-control" placeholder="Ej: Tarta de manzana"
+                value="<%= receta.name || '' %>" required>
+            </div>
+
+            <div class="form-group">
+              <label for="section">Sección / Categoría <span class="required">*</span></label>
+              <input type="text" id="section" name="section" list="secciones-list" class="form-control"
+                placeholder="Ej: postres, veganas, rapidas, saludables, etc." value="<%= receta.section || '' %>"
+                required>
+              <datalist id="secciones-list">
+                <option value="postres">
+                <option value="veganas">
+                <option value="rapidas">
+                <option value="saludables">
+                <option value="internacionales">
+                <option value="mobile">
+                <option value="web">
+              </datalist>
+              <div class="form-hint">Puedes elegir una categoría existente o escribir una nueva.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Descripción</label>
+              <textarea id="description" name="description" class="form-control" rows="3"
+                placeholder="Breve reseña o detalles..."><%= receta.description || '' %></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="ingredients">Ingredientes / Tecnologías</label>
+              <% const lista=receta.ingredients || receta.technologies || []; const strItems=Array.isArray(lista) ?
+                lista.join(', ') : lista;
+          %>
+          <input 
+            type="text" 
+            id="ingredients" 
+            name="ingredients" 
+            class="form-control" 
+            placeholder="Ej: Manzana, Harina, Azúcar, Canela" 
+            value="<%= strItems %>"
+          >
+          <div class="form-hint">Escribe los elementos separados por comas.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="img">URL de Imagen</label>
+          <input 
+            type="url" 
+            id="img" 
+            name="img" 
+            class="form-control" 
+            placeholder="https://picsum.photos/400/225" 
+            value="<%= receta.img || '' %>"
+            oninput="actualizarPreview(this.value)"
+          >
+          <div class="image-preview-wrapper" id="previewWrapper">
+            <img id="imagePreview" src="<%= receta.img || '' %>" alt="Vista previa">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="link">Enlace de referencia / Web completa</label>
+          <input 
+            type="url" 
+            id="link" 
+            name="link" 
+            class="form-control" 
+            placeholder="https://ejemplo.com/receta" 
+            value="<%= receta.link || '' %>"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="collaboratorId">Colaborador</label>
+          <select id="collaboratorId" name="collaboratorId" class="form-control">
+            <option value="">-- Sin asignar --</option>
+            <% colaboradores.forEach(c => { %>
+              <option value="<%= c._id %>" <%= String(receta.collaboratorId) === String(c._id) ? 'selected' : '' %>>
+                <%= c.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <a href="/recetas" class="btn-secondary">Cancelar</a>
+          <button type="submit" class="btn-primary">
+            <%= botonTexto %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    function actualizarPreview(url) {
+      const wrapper = document.getElementById('previewWrapper');
+      const img = document.getElementById('imagePreview');
+      if (url && url.startsWith('http')) {
+        img.src = url;
+        wrapper.style.display = 'block';
+      } else {
+        wrapper.style.display = 'none';
+      }
+    }
+    // Inicializar preview si ya tiene imagen
+    const initialImg = document.getElementById('img').value;
+    if (initialImg) {
+      actualizarPreview(initialImg);
+    }
+  </script>
+</body>
+
+</html>
